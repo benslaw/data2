@@ -28,7 +28,7 @@ public class Data2 {
         public boolean equal( AVL_BST<X> set );
     }
     
-    public class Empty<X> implements AVL_BST<X> {
+    public class Empty<X> implements AVL_BST<X>, Comparable {
         public Empty() {}
         
         public X here() {
@@ -45,6 +45,10 @@ public class Data2 {
         
         public MSequence<X> seq() {
             return this;
+        }
+        
+        public boolean leq ( Comparable X, Comparable Y) {
+            return false;
         }
         
         public int cardinality() {
@@ -82,6 +86,35 @@ public class Data2 {
         
         public boolean equal( AVL_BST<X> set ) {
             return set.isEmptyHuh();
+        }
+        
+    }
+    
+    public class notEmpty<X> implements AVL_BST<X>, Comparable {
+        
+        X here;
+        int key;
+        AVL_BST<X> lefty;
+        AVL_BST<X> righty;
+        
+        public notEmpty( X here, int key, AVL_BST<X> lefty, AVL_BST<X> righty ) {
+            this.here = here;
+            this.key = key;
+            this.lefty = lefty;
+            this.righty = righty;
+        }
+        
+        public int cardinatliy() {
+            return 1 + lefty.cardinality() + righty.cardinality();
+        }
+        
+        public boolean isEmptyHuh() {
+            return false;
+        }
+        
+        public boolean member( X thing ) {
+            return (here.equals(thing) || lefty.member(thing)
+                    || righty.member(thing));
         }
         
     }
