@@ -16,7 +16,7 @@ public class Data2 {
         public MSequence<X> next();
     }
 
-    interface AVL_BST<X> extends MSequence<X>, MSequenced<X> {
+    interface AVL_BST<X extends Comparable<X>> extends MSequence<X>, MSequenced<X> {
         public int cardinality();
         public boolean isEmptyHuh();
         public boolean member( X thing );
@@ -26,9 +26,10 @@ public class Data2 {
         public AVL_BST<X> inter( AVL_BST<X> set );
         public AVL_BST<X> diff( AVL_BST<X> set );
         public boolean equal( AVL_BST<X> set );
+        public int depth();
     }
     
-    public class Empty<X> implements AVL_BST<X>, Comparable {
+    public class Empty<X extends Comparable<X>> implements AVL_BST<X> {
         public Empty() {}
         
         public X here() {
@@ -88,23 +89,50 @@ public class Data2 {
             return set.isEmptyHuh();
         }
         
+        public int depth() {
+            return 0;
+        }
+        
     }
     
-    public class notEmpty<X> implements AVL_BST<X>, Comparable {
+    public class notEmpty<X extends Comparable<X>> implements AVL_BST<X> {
         
         X here;
-        int key;
+        int count;
         AVL_BST<X> lefty;
         AVL_BST<X> righty;
         
-        public notEmpty( X here, int key, AVL_BST<X> lefty, AVL_BST<X> righty ) {
+        public notEmpty( X here, AVL_BST<X> lefty, AVL_BST<X> righty ) {
             this.here = here;
-            this.key = key;
+            this.count = 1;
             this.lefty = lefty;
             this.righty = righty;
         }
         
-        public int cardinatliy() {
+        public notEmpty( X here, int count, AVL_BST<X> lefty, AVL_BST<X> righty ) {
+            this.here = here;
+            this.count = count;
+            this.lefty = lefty;
+            this.righty = righty;
+        }
+        
+        public MSequence<X> next() {
+            return this;
+        }
+        
+        public X here() {
+            return here;
+        }
+        
+        public boolean notEmpty() {
+            return true;
+        }
+        
+        public MSequence<X> seq() {
+            return this;
+        }
+        
+        public int cardinality() {
             return 1 + lefty.cardinality() + righty.cardinality();
         }
         
@@ -117,13 +145,31 @@ public class Data2 {
                     || righty.member(thing));
         }
         
+        public int depth() {
+            return 1 + Math.max(lefty.depth(), righty.depth());
+        }
+        
+        public int balance_factor() {
+            return this.righty.depth() - this.lefty.depth();
+        }
+        
+        public AVL_BST<X> rebalance() {
+            return this;
+        }
+        
+        public AVL_BST<X> add ( X thing ) {
+            if(thing.leq(here)) {
+                return new notEmpty<X> (here, lefty.add(thing), righty);
+            }
+        }
+        
     }
     
-    interface Comparable {
-        public boolean leq ( Comparable X, Comparable Y);
+    interface Comparable<X> {
+        public boolean leq ( Comparable X );
     }
     
     public static void main(String[] args) {
-        // TODO code application logic here
+
     }
 }
