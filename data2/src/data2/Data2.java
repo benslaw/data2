@@ -26,10 +26,14 @@ public class Data2 {
         public AVL_BST<X> inter( AVL_BST<X> set );
         public AVL_BST<X> diff( AVL_BST<X> set );
         public boolean equal( AVL_BST<X> set );
+        public boolean subset ( AVL_BST<X> set );
         public int depth();
+        public AVL_BST<X> rebalance();
+//        public int count = 0;
     }
     
     public class Empty<X extends Comparable<X>> implements AVL_BST<X> {
+        
         public Empty() {}
         
         public X here() {
@@ -91,6 +95,14 @@ public class Data2 {
         
         public int depth() {
             return 0;
+        }
+        
+        public AVL_BST<X> rebalance() {
+            return this;
+        }
+        
+        public boolean subset (AVL_BST<X> set) {
+            return true;
         }
         
     }
@@ -158,15 +170,60 @@ public class Data2 {
         }
         
         public AVL_BST<X> add ( X thing ) {
-            if(thing.leq(here)) {
-                return new notEmpty<X> (here, lefty.add(thing), righty);
+            if(thing.lt(here)) {
+                return new notEmpty<X> (here, lefty.add(thing), righty).rebalance();
+            } else if (thing.equals(here)) {
+                return new notEmpty<X> (here, count + 1, lefty, righty).rebalance();
+            } else {
+                return new notEmpty<X> (here, lefty, righty.add(thing)).rebalance();
             }
+        }
+        
+        public AVL_BST<X> remove ( X thing ) {
+            if(thing.equals(here)) {
+                return new notEmpty<X>(here, count - 1, lefty, righty).rebalance();
+            } else if(thing.lt(here)) {
+                return new notEmpty<X>(here, lefty.remove(thing), righty).rebalance();
+            } else {
+                return new notEmpty<X>(here, lefty, righty.remove(thing)).rebalance();
+            }
+        }
+        
+        public AVL_BST<X> union ( AVL_BST<X> set ) {
+            return lefty.union(set.union(righty).add(here)).rebalance();
+        }
+        
+        public AVL_BST<X> inter ( AVL_BST<X> set ) {
+            if(set.member(here)) {
+                return new notEmpty<X>(here, (set.count - count), 
+                        lefty.inter(set), righty.inter(set)).rebalance();
+            } else {
+                return lefty.inter(set).union(righty.inter(set)).rebalance();
+            }
+        }
+        
+        public AVL_BST<X> diff ( AVL_BST<X> set ) {
+            if(set.member(here)) {
+                return lefty.union(righty).diff(set.remove(here)).rebalance();
+            } else {
+                return new notEmpty<X>(here, lefty.diff(set), righty.diff(set)).rebalance();
+            }
+        }
+        
+        public boolean equal ( AVL_BST<X> set ) {
+            return (this.subset(set) && set.subset(this));
+        }
+        
+        public boolean subset(AVL_BST<X> set) {
+            return (set.member(here) && lefty.subset(set)
+                    && righty.subset(set));
         }
         
     }
     
     interface Comparable<X> {
         public boolean leq ( Comparable X );
+        public boolean lt ( Comparable X );
     }
     
     public static void main(String[] args) {
