@@ -29,6 +29,7 @@ public class Data2 {
         public boolean subset ( AVL_BST<X> set );
         public int depth();
         public AVL_BST<X> rebalance();
+        public int balance_factor();
 //        public int count = 0;
     }
     
@@ -105,6 +106,10 @@ public class Data2 {
             return true;
         }
         
+        public int balance_factor() {
+            return 0;
+        }
+        
     }
     
     public class notEmpty<X extends Comparable<X>> implements AVL_BST<X> {
@@ -165,8 +170,35 @@ public class Data2 {
             return this.righty.depth() - this.lefty.depth();
         }
         
+        public void setRighty( AVL_BST<X> in ) {
+            this.righty = in;
+        }
+        
+        public void setLefty( AVL_BST<X> in ) {
+            this.lefty = in;
+        }
+        
         public AVL_BST<X> rebalance() {
-            return this;
+            if ((this.balance_factor() >= -1) && (this.balance_factor() <= 1)) {
+                return this;
+            } else if(this.balance_factor() < -1) {
+                //left is larger
+                if(this.lefty.balance_factor() < 0) {
+                    // right rotation
+                    AVL_BST<X> temp = this.lefty.righty;
+                    this.lefty.setRighty(this);
+                    this.lefty.righty.setLefty(temp);
+                    return this.rebalance();
+                } else if(this.lefty.balance_factor() > 0) {
+                    // left rotation
+                }
+            } else {
+                if(this.righty.balance_factor() < 0) {
+                    // right rotation
+                } else if(this.righty.balance_factor() > 0) {
+                    // left rotation
+                }
+            }
         }
         
         public AVL_BST<X> add ( X thing ) {
