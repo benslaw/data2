@@ -180,36 +180,38 @@ public class Data2 {
             this.lefty = in;
         }
         
-        public AVL_BST<X> rebalance() {
+        public notEmpty<X> rebalance() {
             if ((this.balance_factor() >= -1) && (this.balance_factor() <= 1)) {
                 return this;
             } else if(this.balance_factor() < -1) {
                 //left is larger
-                if(this.lefty.balance_factor() < 0) {
+                if(lefty.balance_factor() < 0) {
                     // right rotation
-                    notEmpty<X> temp = this.lefty.righty;
-                    this.lefty.setRighty(this);
-                    this.lefty.righty.setLefty(temp);
+                    notEmpty<X> temp = lefty.righty;
+                    lefty.setRighty(this);
+                    lefty.righty.setLefty(temp);
                     return this.rebalance();
-                } else if(this.lefty.balance_factor() > 0) {
+                } else /* if(this.lefty.balance_factor() > 0)*/ {
                     // left rotation
-                    
+                    lefty = lefty.rebalance();
+                    return this.rebalance();
                 }
             } else {
-                if(this.righty.balance_factor() < 0) {
+                if(righty.balance_factor() < 0) {
                     // right rotation
-                    
-                } else if (this.righty.balance_factor() > 0) {
+                    righty = righty.rebalance();
+                    return this.rebalance();
+                } else /* if (righty.balance_factor() > 0)*/ {
                     // left rotation
-                    notEmpty<X> temp = this.righty.lefty;
-                    this.righty.setLefty(this);
-                    this.righty.lefty.setRighty(temp);
+                    notEmpty<X> temp = righty.lefty;
+                    righty.setLefty(this);
+                    righty.lefty.setRighty(temp);
                     return this.rebalance();
                 }
             }
         }
         
-        public AVL_BST<X> add ( X thing ) {
+        public notEmpty<X> add ( X thing ) {
             if(thing.lt(here)) {
                 return new notEmpty<X> (here, lefty.add(thing), righty).rebalance();
             } else if (thing.equals(here)) {
@@ -219,7 +221,7 @@ public class Data2 {
             }
         }
         
-        public AVL_BST<X> remove ( X thing ) {
+        public notEmpty<X> remove ( X thing ) {
             if(thing.equals(here)) {
                 return new notEmpty<X>(here, count - 1, lefty, righty).rebalance();
             } else if(thing.lt(here)) {
@@ -229,11 +231,11 @@ public class Data2 {
             }
         }
         
-        public AVL_BST<X> union ( AVL_BST<X> set ) {
+        public notEmpty<X> union ( AVL_BST<X> set ) {
             return lefty.union(set.union(righty).add(here)).rebalance();
         }
         
-        public AVL_BST<X> inter ( AVL_BST<X> set ) {
+        public notEmpty<X> inter ( notEmpty<X> set ) {
             if(set.member(here)) {
                 return new notEmpty<X>(here, (set.count - count), 
                         lefty.inter(set), righty.inter(set)).rebalance();
@@ -242,7 +244,7 @@ public class Data2 {
             }
         }
         
-        public AVL_BST<X> diff ( AVL_BST<X> set ) {
+        public notEmpty<X> diff ( AVL_BST<X> set ) {
             if(set.member(here)) {
                 return lefty.union(righty).diff(set.remove(here)).rebalance();
             } else {
