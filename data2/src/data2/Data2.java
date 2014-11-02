@@ -116,17 +116,19 @@ public class Data2 {
         
         X here;
         int count;
-        AVL_BST<X> lefty;
-        AVL_BST<X> righty;
+        notEmpty<X> lefty;
+        notEmpty<X> righty;
         
-        public notEmpty( X here, AVL_BST<X> lefty, AVL_BST<X> righty ) {
+//        public notEmpty() {}
+        
+        public notEmpty( X here, notEmpty<X> lefty, notEmpty<X> righty ) {
             this.here = here;
             this.count = 1;
             this.lefty = lefty;
             this.righty = righty;
         }
         
-        public notEmpty( X here, int count, AVL_BST<X> lefty, AVL_BST<X> righty ) {
+        public notEmpty( X here, int count, notEmpty<X> lefty, notEmpty<X> righty ) {
             this.here = here;
             this.count = count;
             this.lefty = lefty;
@@ -170,11 +172,11 @@ public class Data2 {
             return this.righty.depth() - this.lefty.depth();
         }
         
-        public void setRighty( AVL_BST<X> in ) {
+        public void setRighty( notEmpty<X> in ) {
             this.righty = in;
         }
         
-        public void setLefty( AVL_BST<X> in ) {
+        public void setLefty( notEmpty<X> in ) {
             this.lefty = in;
         }
         
@@ -185,18 +187,24 @@ public class Data2 {
                 //left is larger
                 if(this.lefty.balance_factor() < 0) {
                     // right rotation
-                    AVL_BST<X> temp = this.lefty.righty;
+                    notEmpty<X> temp = this.lefty.righty;
                     this.lefty.setRighty(this);
                     this.lefty.righty.setLefty(temp);
                     return this.rebalance();
                 } else if(this.lefty.balance_factor() > 0) {
                     // left rotation
+                    
                 }
             } else {
                 if(this.righty.balance_factor() < 0) {
                     // right rotation
-                } else if(this.righty.balance_factor() > 0) {
+                    
+                } else if (this.righty.balance_factor() > 0) {
                     // left rotation
+                    notEmpty<X> temp = this.righty.lefty;
+                    this.righty.setLefty(this);
+                    this.righty.lefty.setRighty(temp);
+                    return this.rebalance();
                 }
             }
         }
