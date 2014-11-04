@@ -116,19 +116,19 @@ public class Data2 {
         
         X here;
         int count;
-        notEmpty<X> lefty;
-        notEmpty<X> righty;
+        AVL_BST<X> lefty;
+        AVL_BST<X> righty;
         
 //        public notEmpty() {}
         
-        public notEmpty( X here, notEmpty<X> lefty, notEmpty<X> righty ) {
+        public notEmpty( X here, AVL_BST<X> lefty, AVL_BST<X> righty ) {
             this.here = here;
             this.count = 1;
             this.lefty = lefty;
             this.righty = righty;
         }
         
-        public notEmpty( X here, int count, notEmpty<X> lefty, notEmpty<X> righty ) {
+        public notEmpty( X here, int count, AVL_BST<X> lefty, AVL_BST<X> righty ) {
             this.here = here;
             this.count = count;
             this.lefty = lefty;
@@ -172,25 +172,25 @@ public class Data2 {
             return this.righty.depth() - this.lefty.depth();
         }
         
-        public void setRighty( notEmpty<X> in ) {
+        public void setRighty( AVL_BST<X> in ) {
             this.righty = in;
         }
         
-        public void setLefty( notEmpty<X> in ) {
+        public void setLefty( AVL_BST<X> in ) {
             this.lefty = in;
         }
         
-        public notEmpty<X> rebalance() {
+        public AVL_BST<X> rebalance() {
             if ((this.balance_factor() >= -1) && (this.balance_factor() <= 1)) {
                 return this;
             } else if(this.balance_factor() < -1) {
                 //left is larger
-                if(lefty.balance_factor() < 0) {
-                    // right rotation
-                    notEmpty<X> temp = lefty.righty;
-                    lefty.setRighty(this);
-                    lefty.righty.setLefty(temp);
-                    return this.rebalance();
+                if (lefty.balance_factor() < 0) {
+                        // right rotation
+                        AVL_BST<X> temp = ((notEmpty<X>) lefty).righty;
+                        ((notEmpty<X>) lefty).setRighty(this);
+                        ((notEmpty<X>) ((notEmpty<X>) lefty).righty).setLefty(temp);
+                        return this.rebalance();
                 } else /* if(this.lefty.balance_factor() > 0)*/ {
                     // left rotation
                     lefty = lefty.rebalance();
@@ -203,15 +203,15 @@ public class Data2 {
                     return this.rebalance();
                 } else /* if (righty.balance_factor() > 0)*/ {
                     // left rotation
-                    notEmpty<X> temp = righty.lefty;
-                    righty.setLefty(this);
-                    righty.lefty.setRighty(temp);
+                    AVL_BST<X> temp = ((notEmpty<X>) righty).lefty;
+                    ((notEmpty<X>) righty).setLefty(this);
+                    ((notEmpty<X>) ((notEmpty<X>) righty).lefty).setRighty(temp);
                     return this.rebalance();
                 }
             }
         }
         
-        public notEmpty<X> add ( X thing ) {
+        public AVL_BST<X> add ( X thing ) {
             if(thing.lt(here)) {
                 return new notEmpty<X> (here, lefty.add(thing), righty).rebalance();
             } else if (thing.equals(here)) {
@@ -221,7 +221,7 @@ public class Data2 {
             }
         }
         
-        public notEmpty<X> remove ( X thing ) {
+        public AVL_BST<X> remove ( X thing ) {
             if(thing.equals(here)) {
                 return new notEmpty<X>(here, count - 1, lefty, righty).rebalance();
             } else if(thing.lt(here)) {
@@ -231,20 +231,20 @@ public class Data2 {
             }
         }
         
-        public notEmpty<X> union ( AVL_BST<X> set ) {
+        public AVL_BST<X> union ( AVL_BST<X> set ) {
             return lefty.union(set.union(righty).add(here)).rebalance();
         }
         
-        public notEmpty<X> inter ( notEmpty<X> set ) {
+        public AVL_BST<X> inter ( AVL_BST<X> set ) {
             if(set.member(here)) {
-                return new notEmpty<X>(here, (set.count - count), 
+                return new notEmpty<X>(here, (((notEmpty<X>) set).count - count), 
                         lefty.inter(set), righty.inter(set)).rebalance();
             } else {
                 return lefty.inter(set).union(righty.inter(set)).rebalance();
             }
         }
         
-        public notEmpty<X> diff ( AVL_BST<X> set ) {
+        public AVL_BST<X> diff ( AVL_BST<X> set ) {
             if(set.member(here)) {
                 return lefty.union(righty).diff(set.remove(here)).rebalance();
             } else {
