@@ -136,7 +136,7 @@ public class Data2 {
         }
         
         public MSequence<X> next() {
-            return this;
+            return lefty.union(righty);
         }
         
         public X here() {
