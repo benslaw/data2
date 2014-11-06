@@ -34,16 +34,19 @@ class Testeez {
 
 public class Data2 {
     
+    //sequenced interface
     interface MSequenced<X extends Comparable<X>> {
         public MSequence<X> seq();
     }
     
+    //sequence interface, with here notEmpty and next
     interface MSequence<X extends Comparable<X>> {
         public X here();
         public boolean notEmpty();
-        public MSequence<X> next();
+        public MSequence next();
     }
 
+    //AVL_BST interface
     interface AVL_BST<X extends Comparable<X>> extends MSequence<X>, MSequenced<X> {
         public int cardinality();
         public boolean isEmptyHuh();
@@ -62,52 +65,72 @@ public class Data2 {
     
     public static class Empty<X extends Comparable<X>> implements AVL_BST<X> {
         
+        //constructor
         public Empty() {}
         
+        //here() -> takes no inputs, throws an exception because an empty tree
+        //will never have anything here
         public X here() {
             throw new RuntimeException("The set is empty, there is no X here");
         }
         
+        //next() -> takes no inputs, returns the empty set as there is no next
+        //field to move to in the empty set
         public MSequence next() {
             return this;
         }
         
+        //notEmpty() -> takes no inputs, returns false because by definition the
+        //set is empty
         public boolean notEmpty() {
             return false;
         }
         
+        //seq() -> takes no inputs, returns the empty set as there is no sequence
+        //of elements to return in the empty set
         public MSequence seq() {
             return this;
         }
         
-//        public boolean leq ( Comparable X, Comparable Y) {
-//            return false;
-//        }
-        
+        //cardinality() -> takes no inputs, returns zero as the empty set by definition
+        //has no elements
         public int cardinality() {
             return 0;
         }
         
+        //isEmptyHuh() -> takes no inputs, returns true as the empty set by definition
+        //is empty
         public boolean isEmptyHuh() {
             return true;
         }
         
+        //member(X thing) -> takes a generic X as input, always returns false because
+        //the empty set by definition is empty
         public boolean member( X thing ) {
             return false;
         }
         
+        //add(X thing) -> takes a generic X as input, returns a new instance of
+        //the notEmpty class with two empty leaves as children
         public AVL_BST add( X thing ) {
             return new notEmpty(thing, new Empty(), new Empty());
         }
         
+        //remove(X thing) -> takes a generic X as input, returns a new instance
+        //of the Empty class because there is nothing to remove from the empty set
         public AVL_BST remove( X thing ) {
             return new Empty();
         }
         
+        //union(AVL_BST set) -> takes an AVL_BST named set as input, returns set
+        //as the union between set and the empty set is just the original set
         public AVL_BST union( AVL_BST set ) {
             return set;
         }
         
+        //inter(AVL_BST set) -> takes an AVL_BST named set as input, returns a new
+        //instance of the empty class as there is no intersection between set
+        //and the empty set
         public AVL_BST inter( AVL_BST set ) {
             return new Empty();
         }
@@ -378,6 +401,68 @@ public class Data2 {
         //Property 4: if the difference between two sets 1 and 2 is null in both 
         //directions, the two sets will be equal
         Testeez.check("sets equal", (l5.diff(l5e).isEmptyHuh() && l5e.diff(l5).isEmptyHuh()), true);
+        Testeez.check_unequal("sets unequal", (l5.diff(l3).isEmptyHuh() && l3.diff(l5).isEmptyHuh()), true);
+        Testeez.check("sets equal string", (le.diff(le5).isEmptyHuh() && le5.diff(le).isEmptyHuh()), true);
+        Testeez.check_unequal("sets unequal string", (le.diff(lc).isEmptyHuh() && lc.diff(le).isEmptyHuh()), true);
+        
+        //Property 5: if a given element is a member of a set, when the element is removed
+        //the cardinality of the set should be one less than the original cardinality
+        int x = randomInt(0,10);
+        String y = randomString(0,10);
+        int original_card = intTree.cardinality();
+        int original_str_card = strTree.cardinality();
+        if(intTree.member(x)) {
+            Testeez.check("remove cardinality", intTree.remove(x).cardinality(), original_card - 1);
+        }
+        if(strTree.member(y)) {
+            Testeez.check("remove cardinality string", strTree.remove(y).cardinality(), original_str_card - 1);
+        }
+        if(!intTree.member(x)) {
+            Testeez.check_unequal("remove cardinality", intTree.remove(x).cardinality(), original_card - 1);
+        }
+        if(!strTree.member(y)) {
+            Testeez.check_unequal("remove cardinality string", strTree.remove(y).cardinality(), original_str_card - 1);
+        }
+        
+        //Property 6: for all set1, set2, set3: 
+        //set1.union(set2).subset(set3) = set1.subset(set3) && set2.subset(set3)
+        Testeez.check("union/subset", intTree.union(intTree2).subset(intTree3), 
+                (intTree.subset(intTree3) && intTree2.subset(intTree3)));
+        Testeez.check("union/subset string", strTree.union(strTree2).subset(strTree3), 
+                (strTree.subset(strTree3) && strTree2.subset(strTree3)));
+        
+        //Property 7: if an element exists in two distinct sets set1 and set2, then
+        //set1.inter(set2) should not be empty
+        if(intTree.member(x) && intTree2.member(x)) {
+            Testeez.check("inter", intTree.inter(intTree2).isEmptyHuh(), true);
+        } else {
+            Testeez.check_unequal("inter", intTree.inter(intTree2).isEmptyHuh(), true);
+        }
+        
+        //Property 8: if an element occurs in a set more than once, then removing
+        //one instance of the element should still allow member to return true
+        if(l5.member(5) && l5.remove(5).member(5)) {
+            Testeez.check("count > 1", l5.remove(5).member(5), true);
+        } else {
+            Testeez.check_unequal("count > 1", l5.remove(5).member(5), true);
+        }
+        if(le.member("abc") && le.remove("abc").member("abc")) {
+            Testeez.check("count > 1 string", le.remove("abc").member("abc"), true);
+        } else {
+            Testeez.check_unequal("count > 1 string", le.remove("abc").member("abc"), true);
+        }
+        
+        //Property 9: if a tree is balanced, the balance factor should be -1, 0, or 1
+        int bal_fac = intTree.balance_factor();
+        int bal_fac_str = strTree.balance_factor();
+        Testeez.check("balance", (bal_fac >= -1 && bal_fac <= 1), true);
+        Testeez.check("balance string", (bal_fac_str >= -1 && bal_fac_str <= 1), true);
+        
+        //Property 10: the MSequence notEmpty should return true on the notEmpty data
+        //type, and false for the empty data type
+        Testeez.check("notEmpty mt", mt.notEmpty(), false);
+        Testeez.check("notEmpty !mt", l3.notEmpty(), true);
+        Testeez.check("notEmpty !mt string", lc.notEmpty(), true);
         
     }
 }
